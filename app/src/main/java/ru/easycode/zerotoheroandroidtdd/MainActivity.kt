@@ -43,8 +43,8 @@ class MainActivity : AppCompatActivity() {
 //        button.setOnClickListener {
 //            textView.text = "I am an Android Develoder"
 //        }
+//    }
+
+
     }
-
-
-
 }
