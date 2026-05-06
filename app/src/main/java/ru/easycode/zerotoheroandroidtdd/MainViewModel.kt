@@ -1,28 +1,25 @@
 package ru.easycode.zerotoheroandroidtdd
 
-import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
-class MainViewModel: ViewModel() {
+class MainViewModel(
+    private val liveDataWrapper: LiveDataWrapper,
+    private val repository: Repository
+) {
 
-    val currentName: MutableLiveData<State> by lazy {
-        MutableLiveData<State>()
-    }
-    private var state: State = State.Initial()
+    private val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    suspend fun updateState(textView: TextView, progressBar: ProgressBar, button: Button) {
-        try {
-            state = State.Loading()
-            state.apply(textView, progressBar, button)
-            delay(3500)
-        } finally {
-            state = State.Finished()
-            state.apply(textView, progressBar, button)
-            currentName.value = state
+    fun liveData() = liveDataWrapper.liveData()
+
+    fun load() {
+        liveDataWrapper.update(UiState.ShowProgress)
+        viewModelScope.launch {
+            repository.load()
+            liveDataWrapper.update(UiState.ShowData)
         }
     }
+
 }
